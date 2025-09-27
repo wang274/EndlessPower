@@ -157,14 +157,18 @@ function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: numbe
 export function debugLocationMerge(mergeResults: LocationMergeResult[], showDetails = false) {
   const stats = getLocationMergeStats(mergeResults)
   
-  console.log('🗺️ 充电桩位置合并统计:')
-  console.log(`   总数: ${stats.total}`)
-  console.log(`   硬编码位置: ${stats.hardcoded} (${(stats.hardcoded/stats.total*100).toFixed(1)}%)`)
-  console.log(`   API位置: ${stats.apiOnly} (${(stats.apiOnly/stats.total*100).toFixed(1)}%)`)
-  console.log(`   ID匹配: ${stats.idMatches}`)
-  console.log(`   名称匹配: ${stats.nameMatches}`)
+  const isDevMode = showDetails || (typeof window !== 'undefined' && window.location.hostname.includes('dev'))
+  
+  if (isDevMode) {
+    console.log('🗺️ 充电桩位置合并统计:')
+    console.log(`   总数: ${stats.total}`)
+    console.log(`   硬编码位置: ${stats.hardcoded} (${(stats.hardcoded/stats.total*100).toFixed(1)}%)`)
+    console.log(`   API位置: ${stats.apiOnly} (${(stats.apiOnly/stats.total*100).toFixed(1)}%)`)
+    console.log(`   ID匹配: ${stats.idMatches}`)
+    console.log(`   名称匹配: ${stats.nameMatches}`)
+  }
 
-  if (showDetails) {
+  if (showDetails && isDevMode) {
     console.log('\n📍 详细信息:')
     stats.details.forEach(detail => {
       const status = detail.isHardcoded 

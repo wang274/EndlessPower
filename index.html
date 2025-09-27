@@ -4,17 +4,56 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
     
+    <!-- 基础SEO Meta标签 -->
+    <meta name="description" content="智能充电桩查询应用，实时显示附近充电站状态，支持充电桩导航、收藏管理，为新能源汽车用户提供便捷充电服务。" />
+    <meta name="keywords" content="充电桩,充电站,电动汽车充电,新能源汽车,充电桩查询,充电桩地图,闪开来电,EndlessPower,实时充电状态,附近充电桩,充电桩导航,EV充电" />
+    <meta name="author" content="EndlessPower Team" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="language" content="zh-CN" />
+    <meta name="geo.region" content="CN" />
+    <meta name="geo.position" content="30.754365;103.936107" />
+    <meta name="geo.placename" content="成都" />
+    <meta name="ICBM" content="30.754365, 103.936107" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="充电桩地图查询 - EndlessPower" />
+    <meta property="og:description" content="智能充电桩查询应用，实时显示附近充电站状态，支持充电桩导航、收藏管理，为新能源汽车用户提供便捷充电服务。" />
+    <meta property="og:image" content="/pwa-512x512.svg" />
+    <meta property="og:url" content="https://endlesspower.karanocave.workers.dev" />
+    <meta property="og:site_name" content="EndlessPower" />
+    <meta property="og:locale" content="zh_CN" />
+    
+    <!-- Twitter Cards -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="充电桩地图查询 - EndlessPower" />
+    <meta name="twitter:description" content="智能充电桩查询应用，实时显示附近充电站状态，支持充电桩导航、收藏管理，为新能源汽车用户提供便捷充电服务。" />
+    <meta name="twitter:image" content="/pwa-512x512.svg" />
+    <meta name="twitter:site" content="@EndlessPower" />
+    <meta name="twitter:creator" content="@EndlessPower" />
+    
     <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#3B82F6" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="EndlessPower" />
-    <meta name="description" content="闪开来电充电桩地图查询应用，查找附近充电桩，实时查看充电状态" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="application-name" content="EndlessPower" />
+    
+    <!-- 安全和隐私 -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="referrer" content="origin-when-cross-origin" />
     
     <!-- Icons -->
     <link rel="icon" type="image/svg+xml" href="/icon.svg" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.svg" />
     <link rel="mask-icon" href="/mask-icon.svg" color="#3B82F6" />
+    <link rel="canonical" href="https://endlesspower.karanocave.workers.dev" />
+    
+    <!-- DNS预解析优化 -->
+    <link rel="dns-prefetch" href="//fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="//fonts.gstatic.com" />
+    <link rel="dns-prefetch" href="//unpkg.com" />
     
     <title>充电桩地图查询 - EndlessPower</title>
     
@@ -25,6 +64,78 @@
     
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    
+    <!-- 结构化数据 JSON-LD -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "EndlessPower",
+      "description": "智能充电桩查询应用，实时显示附近充电站状态，支持充电桩导航、收藏管理，为新能源汽车用户提供便捷充电服务。",
+      "url": "https://endlesspower.karanocave.workers.dev",
+      "image": "https://endlesspower.karanocave.workers.dev/pwa-512x512.svg",
+      "author": {
+        "@type": "Organization",
+        "name": "EndlessPower Team"
+      },
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "CNY",
+        "description": "免费充电桩查询服务"
+      },
+      "applicationCategory": "LifestyleApplication",
+      "operatingSystem": "Web",
+      "browserRequirements": "Requires modern web browser with JavaScript enabled",
+      "softwareVersion": "1.2.0",
+      "dateCreated": "2024-01-01",
+      "dateModified": "2025-09-26",
+      "inLanguage": "zh-CN",
+      "isAccessibleForFree": true,
+      "keywords": "充电桩,充电站,电动汽车充电,新能源汽车,充电桩查询,充电桩地图,闪开来电,EndlessPower,实时充电状态,附近充电桩,充电桩导航,EV充电",
+      "mainEntity": {
+        "@type": "Service",
+        "name": "充电桩查询服务",
+        "description": "为电动汽车用户提供实时充电桩查询、导航和状态监控服务",
+        "provider": {
+          "@type": "Organization",
+          "name": "EndlessPower"
+        },
+        "areaServed": {
+          "@type": "Country",
+          "name": "China"
+        },
+        "serviceType": "充电桩查询",
+        "hasOfferCatalog": {
+          "@type": "OfferCatalog",
+          "name": "充电桩服务",
+          "itemListElement": [
+            {
+              "@type": "Offer",
+              "itemOffered": {
+                "@type": "Service",
+                "name": "实时充电桩查询"
+              }
+            },
+            {
+              "@type": "Offer", 
+              "itemOffered": {
+                "@type": "Service",
+                "name": "充电桩导航服务"
+              }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": {
+                "@type": "Service", 
+                "name": "充电状态监控"
+              }
+            }
+          ]
+        }
+      }
+    }
+    </script>
     
     <!-- Prevent zoom on input focus (iOS) -->
     <style>

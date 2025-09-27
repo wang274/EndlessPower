@@ -41,7 +41,6 @@ const CORS_PROXIES = [
 
 // CORS代理和基础API函数
 async function fetchAPI<T>(url: string, options: RequestInit = {}): Promise<T | null> {
-  let lastError: Error | null = null
   
   // 首先尝试直接请求（可能在某些环境下可行）
   try {
@@ -63,13 +62,13 @@ async function fetchAPI<T>(url: string, options: RequestInit = {}): Promise<T | 
       }
     }
   } catch (error) {
-    console.warn(`❌ 直接请求失败，尝试代理服务`, error)
+    if (ENABLE_DEBUG) console.warn(`❌ 直接请求失败，尝试代理服务`, error)
   }
   
   // 尝试每个代理服务
   for (const proxy of CORS_PROXIES) {
     try {
-      console.log(`🔄 尝试代理: ${proxy.url}`)
+      if (ENABLE_DEBUG) console.log(`🔄 尝试代理: ${proxy.url}`)
       let response: Response
       
       if (proxy.type === 'allorigins') {
@@ -96,9 +95,9 @@ async function fetchAPI<T>(url: string, options: RequestInit = {}): Promise<T | 
         if (typeof contents === 'string') {
           try {
             contents = JSON.parse(contents)
-          } catch (e) {
-            throw new Error('JSON 解析失败')
-          }
+        } catch {
+          throw new Error('JSON 解析失败')
+        }
         }
         
         const data: ApiResponse<T> = contents
@@ -106,7 +105,7 @@ async function fetchAPI<T>(url: string, options: RequestInit = {}): Promise<T | 
           throw new Error(data.msg || 'API error')
         }
         
-        console.log(`✅ 代理成功: ${proxy.url}`)
+        if (ENABLE_DEBUG) console.log(`✅ 代理成功: ${proxy.url}`)
         return data.data
       } else {
         // 其他代理服务的标准处理
@@ -130,12 +129,11 @@ async function fetchAPI<T>(url: string, options: RequestInit = {}): Promise<T | 
           throw new Error(data.msg || 'API error')
         }
         
-        console.log(`✅ 代理成功: ${proxy.url}`)
+        if (ENABLE_DEBUG) console.log(`✅ 代理成功: ${proxy.url}`)
         return data.data
       }
     } catch (error) {
-      console.warn(`❌ 代理失败: ${proxy.url}`, error)
-      lastError = error as Error
+      if (ENABLE_DEBUG) console.warn(`❌ 代理失败: ${proxy.url}`, error)
       continue
     }
   }
@@ -205,7 +203,7 @@ export async function fetchNearStations(
   lat = 30.754736739439924, 
   lng = 103.92946279311207
 ): Promise<Station[]> {
-  console.log('🔍 开始获取附近充电站...', { lat, lng })
+  if (ENABLE_DEBUG) console.log('🔍 开始获取附近充电站...', { lat, lng })
   
   const url = 'https://wemp.issks.com/device/v1/near/station'
   
@@ -226,7 +224,7 @@ export async function fetchNearStations(
   })
   
   const apiStations = data?.elecStationData || []
-  console.log(`📡 API返回 ${apiStations.length} 个充电站`)
+  if (ENABLE_DEBUG) console.log(`📡 API返回 ${apiStations.length} 个充电站`)
   
   // 合并硬编码位置信息
   const mergeResults = mergeStationsLocations(apiStations)
@@ -234,7 +232,7 @@ export async function fetchNearStations(
   
   // 打印位置合并统计信息
   const stats = debugLocationMerge(mergeResults, false)
-  console.log(`🗺️ 位置合并完成: ${stats.hardcoded}/${stats.total} 使用硬编码位置`)
+  if (ENABLE_DEBUG) console.log(`🗺️ 位置合并完成: ${stats.hardcoded}/${stats.total} 使用硬编码位置`)
   
   return mergedStations
 }

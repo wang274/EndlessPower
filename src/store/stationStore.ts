@@ -86,10 +86,10 @@ export const useStationStore = create<StationState>()(
                       lastRefresh: Date.now()
                     })
                   }
-                } catch (error) {
-                  console.error('Failed to fetch stations with default location:', error)
-                  useErrorStore.getState().showError('无法加载充电站数据')
-                }
+            } catch (error) {
+              if (import.meta.env.DEV) console.error('Failed to fetch stations with default location:', error)
+              useErrorStore.getState().showError('无法加载充电站数据')
+            }
                 
                 set({ isLoading: false })
               },
@@ -111,14 +111,14 @@ export const useStationStore = create<StationState>()(
                 })
               }
             } catch (error) {
-              console.error('Failed to fetch stations:', error)
+              if (import.meta.env.DEV) console.error('Failed to fetch stations:', error)
               useErrorStore.getState().showError('无法加载充电站数据')
             }
             
             set({ isLoading: false })
           }
         } catch (error) {
-          console.error('Initialization error:', error)
+          if (import.meta.env.DEV) console.error('Initialization error:', error)
           useErrorStore.getState().showError('初始化失败')
           set({ isLoading: false })
         }
@@ -146,7 +146,7 @@ export const useStationStore = create<StationState>()(
             })
           }
         } catch (error) {
-          console.error('Failed to refresh stations:', error)
+          if (import.meta.env.DEV) console.error('Failed to refresh stations:', error)
           useErrorStore.getState().showError('刷新失败，请稍后重试')
         }
         

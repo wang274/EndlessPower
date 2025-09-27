@@ -53,15 +53,15 @@ const PWAInstallPrompt: React.FC = () => {
       const { outcome } = await deferredPrompt.userChoice
       
       if (outcome === 'accepted') {
-        console.log('User accepted the install prompt')
+        if (import.meta.env.DEV) console.log('User accepted the install prompt')
         setShowInstallPrompt(false)
       } else {
-        console.log('User dismissed the install prompt')
+        if (import.meta.env.DEV) console.log('User dismissed the install prompt')
       }
       
       setDeferredPrompt(null)
     } catch (error) {
-      console.error('Error during installation:', error)
+      if (import.meta.env.DEV) console.error('Error during installation:', error)
     }
   }
 
@@ -112,7 +112,9 @@ const PWAInstallPrompt: React.FC = () => {
           
           <button
             onClick={handleDismiss}
-            className="flex-shrink-0 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 p-1"
+            className="flex-shrink-0 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 p-2 rounded-lg min-w-[44px] min-h-[44px] flex items-center justify-center"
+            aria-label="关闭安装提示"
+            type="button"
           >
             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
               <path 
@@ -127,13 +129,17 @@ const PWAInstallPrompt: React.FC = () => {
         <div className="mt-3 flex space-x-2">
           <button
             onClick={handleInstallClick}
-            className="flex-1 bg-blue-500 dark:bg-blue-600 text-white text-sm font-medium py-2 px-4 rounded-lg hover:bg-blue-600 dark:hover:bg-blue-700 transition-colors"
+            className="flex-1 bg-blue-500 dark:bg-blue-600 text-white text-sm font-medium py-3 px-4 rounded-lg hover:bg-blue-600 dark:hover:bg-blue-700 transition-colors min-h-[44px]"
+            aria-label="安装应用"
+            type="button"
           >
             安装
           </button>
           <button
             onClick={handleDismiss}
-            className="flex-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 text-sm font-medium py-2 px-4 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+            className="flex-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 text-sm font-medium py-3 px-4 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors min-h-[44px]"
+            aria-label="稍后安装"
+            type="button"
           >
             稍后
           </button>

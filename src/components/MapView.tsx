@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react'
 import { MapContainer, TileLayer, Marker, Tooltip } from 'react-leaflet'
+import { useSEO } from '../hooks/useSEO'
 import L from 'leaflet'
 import { Station } from '../types/station'
 import { useStationStore } from '../store/stationStore'
@@ -10,12 +11,19 @@ import { getColorForAvailability } from '../utils/api'
 import SearchBar from './SearchBar'
 import StationDetailPanel from './StationDetailPanel'
 import LoadingSpinner from './LoadingSpinner'
+import RefreshOutlined from '@mui/icons-material/RefreshOutlined'
+import MyLocationOutlined from '@mui/icons-material/MyLocationOutlined'
+import QrCodeScannerOutlined from '@mui/icons-material/QrCodeScannerOutlined'
 
 const MAP_CENTER: [number, number] = [30.754365, 103.936107]
 
 const MapView: React.FC = () => {
+  // SEO优化
+  useSEO('home')
+  
   const [selectedStation, setSelectedStation] = useState<Station | null>(null)
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null)
+  const [isLocating, setIsLocating] = useState(false)
   const mapRef = useRef<L.Map | null>(null)
   
   const { 
@@ -48,7 +56,7 @@ const MapView: React.FC = () => {
           }
         },
         (error) => {
-          console.warn('Failed to get user location:', error)
+          if (import.meta.env.DEV) console.warn('Failed to get user location:', error)
         },
         {
           enableHighAccuracy: true,
@@ -107,23 +115,36 @@ const MapView: React.FC = () => {
       return
     }
 
+    if (isLocating) {
+      return // 防止重复请求
+    }
+
+    setIsLocating(true)
+
     navigator.geolocation.getCurrentPosition(
       async (position) => {
-        const { latitude, longitude } = position.coords
-        const location: [number, number] = [latitude, longitude]
-        
-        setUserLocation(location)
-        setStoreUserLocation(location)
-        
-        // 移动地图到用户位置
-        if (mapRef.current) {
-          mapRef.current.setView(location, 16)
+        try {
+          const { latitude, longitude } = position.coords
+          const location: [number, number] = [latitude, longitude]
+          
+          setUserLocation(location)
+          setStoreUserLocation(location)
+          
+          // 移动地图到用户位置
+          if (mapRef.current) {
+            mapRef.current.setView(location, 16)
+          }
+          
+          // 刷新该位置的充电站
+          await refreshStations(latitude, longitude)
+        } catch (error) {
+          showError('刷新充电站数据时出错')
+        } finally {
+          setIsLocating(false)
         }
-        
-        // 刷新该位置的充电站
-        await refreshStations(latitude, longitude)
       },
       (error) => {
+        setIsLocating(false)
         switch(error.code) {
           case error.PERMISSION_DENIED:
             showError('用户拒绝了地理位置请求')
@@ -145,6 +166,15 @@ const MapView: React.FC = () => {
         maximumAge: 60000
       }
     )
+  }
+
+  const handleWeChatScan = () => {
+    try {
+      // 尝试打开微信扫一扫
+      window.location.href = 'weixin://scanqrcode'
+    } catch (error) {
+      console.warn('无法打开微信扫一扫，可能是设备不支持或未安装微信', error)
+    }
   }
 
   const getStationMarkerColor = (station: Station) => {
@@ -170,9 +200,22 @@ const MapView: React.FC = () => {
     }
   }, [stations, showUnavailableStations])
 
+  // 处理搜索框选择充电桩
+  const handleStationSelectFromSearch = (station: Station) => {
+    // 定位地图到选择的充电桩
+    if (mapRef.current) {
+      mapRef.current.setView([station.latitude, station.longitude], 18, {
+        animate: true,
+        duration: 1
+      })
+    }
+    // 可选：同时打开该充电桩的详情面板
+    setSelectedStation(station)
+  }
+
   return (
     <div className="w-full h-full relative">
-      <SearchBar />
+      <SearchBar onStationSelect={handleStationSelectFromSearch} />
       
       {/* Map Container */}
       <MapContainer
@@ -180,6 +223,7 @@ const MapView: React.FC = () => {
         zoom={16}
         className="w-full h-full"
         zoomControl={false}
+        attributionControl={false}
         ref={mapRef}
       >
         <TileLayer
@@ -233,48 +277,30 @@ const MapView: React.FC = () => {
       {/* Control Buttons */}
       <button
         onClick={handleRefresh}
-        disabled={!canRefresh() || isLoading}
-        className="absolute bottom-6 right-6 z-[999] bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 p-3 rounded-full shadow-lg hover:bg-gray-100 dark:hover:bg-gray-700 hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+        className="absolute bottom-6 right-6 z-[999] bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 p-3 rounded-full shadow-lg hover:bg-gray-100 dark:hover:bg-gray-700 hover:scale-105 active:scale-95 transition-all min-w-[56px] min-h-[56px] flex items-center justify-center"
+        aria-label="刷新充电站数据"
+        type="button"
       >
-        <svg 
-          xmlns="http://www.w3.org/2000/svg" 
-          className="h-6 w-6" 
-          fill="none" 
-          viewBox="0 0 24 24" 
-          stroke="currentColor" 
-          strokeWidth="2"
-        >
-          <path 
-            strokeLinecap="round" 
-            strokeLinejoin="round" 
-            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" 
-          />
-        </svg>
+        <RefreshOutlined className="h-6 w-6" />
       </button>
 
       <button
         onClick={handleLocateUser}
-        className="absolute bottom-6 right-24 z-[999] bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 p-3 rounded-full shadow-lg hover:bg-gray-100 dark:hover:bg-gray-700 hover:scale-105 active:scale-95 transition-all"
+        disabled={isLocating}
+        className="absolute bottom-6 right-20 z-[999] bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 p-3 rounded-full shadow-lg hover:bg-gray-100 dark:hover:bg-gray-700 hover:scale-105 active:scale-95 transition-all disabled:opacity-50 min-w-[56px] min-h-[56px] flex items-center justify-center"
+        aria-label={isLocating ? "定位中..." : "定位当前位置"}
+        type="button"
       >
-        <svg 
-          xmlns="http://www.w3.org/2000/svg" 
-          className="h-6 w-6" 
-          fill="none" 
-          viewBox="0 0 24 24" 
-          stroke="currentColor" 
-          strokeWidth="2"
-        >
-          <path 
-            strokeLinecap="round" 
-            strokeLinejoin="round" 
-            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" 
-          />
-          <path 
-            strokeLinecap="round" 
-            strokeLinejoin="round" 
-            d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" 
-          />
-        </svg>
+        <MyLocationOutlined className="h-6 w-6" />
+      </button>
+
+      <button
+        onClick={handleWeChatScan}
+        className="absolute bottom-6 right-36 z-[999] bg-white dark:bg-gray-800 text-green-600 dark:text-green-400 p-3 rounded-full shadow-lg hover:bg-gray-100 dark:hover:bg-gray-700 hover:scale-105 active:scale-95 transition-all min-w-[56px] min-h-[56px] flex items-center justify-center"
+        aria-label="微信扫一扫"
+        type="button"
+      >
+        <QrCodeScannerOutlined className="h-6 w-6" />
       </button>
 
       {/* Loading Overlay */}
@@ -290,39 +316,6 @@ const MapView: React.FC = () => {
         onClose={() => setSelectedStation(null)}
       />
 
-      {/* Zoom Control */}
-      <div className="leaflet-control-zoom leaflet-bar leaflet-control absolute bottom-6 left-6 z-[999]">
-        <a
-          className="leaflet-control-zoom-in"
-          href="#"
-          onClick={(e) => {
-            e.preventDefault()
-            if (mapRef.current) {
-              mapRef.current.zoomIn()
-            }
-          }}
-          title="放大"
-          role="button"
-          aria-label="放大"
-        >
-          +
-        </a>
-        <a
-          className="leaflet-control-zoom-out"
-          href="#"
-          onClick={(e) => {
-            e.preventDefault()
-            if (mapRef.current) {
-              mapRef.current.zoomOut()
-            }
-          }}
-          title="缩小"
-          role="button"
-          aria-label="缩小"
-        >
-          −
-        </a>
-      </div>
     </div>
   )
 }

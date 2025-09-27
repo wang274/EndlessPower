@@ -1,0 +1,37 @@
+# robots.txt for EndlessPower - 充电桩查询应用
+# https://endlesspower.karanocave.workers.dev
+
+User-agent: *
+Allow: /
+
+# 重要页面
+Allow: /
+Allow: /favorites
+Allow: /settings
+
+# PWA相关文件
+Allow: /manifest.webmanifest
+Allow: /sw.js
+Allow: /pwa-*.svg
+Allow: /icon.svg
+Allow: /apple-touch-icon.svg
+
+# 静态资源
+Allow: /assets/
+Allow: /*.css
+Allow: /*.js
+Allow: /*.svg
+Allow: /*.png
+Allow: /*.jpg
+Allow: /*.ico
+
+# 禁止访问的路径
+Disallow: /api/
+Disallow: /_*
+Disallow: /offline.html
+
+# 网站地图
+Sitemap: https://endlesspower.karanocave.workers.dev/sitemap.xml
+
+# 爬取频率建议
+Crawl-delay: 1
